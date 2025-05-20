@@ -1,12 +1,15 @@
 /* eslint-env mocha */
-import fs from 'fs';
-import path from 'path';
-import assert from 'assert';
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// eslint-disable-next-line import-x/default -- https://github.com/un-ts/eslint-plugin-import-x/issues/334
 import core from '../../src/index';
 
-const src = fs.readdirSync(path.resolve(__dirname, '../../src'))
-  .filter((f) => f.indexOf('.js') >= 0)
-  .map((f) => path.basename(f, '.js'));
+const src = fs
+  .readdirSync(path.resolve(__dirname, '../../src'))
+  .filter(f => f.includes('.js'))
+  .map(f => path.basename(f, '.js'));
 
 describe('main export', () => {
   it('should export an object', () => {
@@ -16,12 +19,9 @@ describe('main export', () => {
     assert.equal(actual, expected);
   });
 
-  src.filter((f) => f !== 'index').forEach((f) => {
+  for (const f of src.filter(f => f !== 'index')) {
     it(`should export ${f}`, () => {
-      assert.equal(
-        core[f],
-        require(path.join('../../src/', f)).default // eslint-disable-line
-      );
+      assert.equal(core[f], require(path.join('../../src/', f)).default);
     });
 
     it(`should export ${f} from root`, () => {
@@ -31,5 +31,5 @@ describe('main export', () => {
 
       assert.equal(actual, expected);
     });
-  });
+  }
 });

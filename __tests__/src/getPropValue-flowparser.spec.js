@@ -1,13 +1,9 @@
 /* eslint-env mocha */
 /* eslint no-template-curly-in-string: 0 */
-import assert from 'assert';
-import {
-  extractProp,
-  changePlugins,
-  describeIfNotBabylon,
-  setParserName,
-} from '../helper';
+import assert from 'node:assert';
+
 import getPropValue from '../../src/getPropValue';
+import { extractProp, changePlugins, setParserName } from '../helper';
 
 describe('getPropValue', () => {
   beforeEach(() => {
@@ -36,9 +32,9 @@ describe('getPropValue', () => {
       },
     };
     let counter = 0;
-    // eslint-disable-next-line no-console
+
     const errorOrig = console.error;
-    // eslint-disable-next-line no-console
+
     console.error = () => {
       counter += 1;
     };
@@ -47,9 +43,9 @@ describe('getPropValue', () => {
       value = getPropValue(prop);
     }, Error);
 
-    assert.equal(null, value);
+    assert.equal(value, null);
     assert.equal(counter, 1);
-    // eslint-disable-next-line no-console
+
     console.error = errorOrig;
   });
 
@@ -294,7 +290,9 @@ describe('getPropValue', () => {
       actual();
     });
     it('should handle ArrowFunctionExpression as conditional consequent', () => {
-      const prop = extractProp('<div foo={ (true) ? () => null : () => ({})} />');
+      const prop = extractProp(
+        '<div foo={ (true) ? () => null : () => ({})} />',
+      );
 
       const expected = 'function';
       const actual = getPropValue(prop);
@@ -330,7 +328,7 @@ describe('getPropValue', () => {
       assert.equal(actual, expected);
     });
 
-    it('should return undefined when evaluating `undefined && undefined` ', () => {
+    it('should return undefined when evaluating `undefined && undefined`', () => {
       const prop = extractProp('<div foo={undefined && undefined} />');
 
       const expected = undefined;
@@ -357,7 +355,7 @@ describe('getPropValue', () => {
       assert.equal(actual, expected);
     });
 
-    it('should return undefined when evaluating `undefined || undefined` ', () => {
+    it('should return undefined when evaluating `undefined || undefined`', () => {
       const prop = extractProp('<div foo={undefined || undefined} />');
 
       const expected = undefined;
@@ -581,8 +579,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `!=` operator correctly', () => {
@@ -592,8 +590,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `===` operator correctly', () => {
@@ -603,8 +601,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `!==` operator correctly', () => {
@@ -614,8 +612,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `<` operator correctly', () => {
@@ -625,8 +623,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `>` operator correctly', () => {
@@ -636,8 +634,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `<=` operator correctly', () => {
@@ -647,8 +645,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `>=` operator correctly', () => {
@@ -658,8 +656,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `<<` operator correctly', () => {
@@ -800,7 +798,9 @@ describe('getPropValue', () => {
     });
 
     it('should evaluate to a correct representation of the object, ignore spread properties', () => {
-      const prop = extractProp('<div foo={{bar: "baz", ...{baz: "bar", foo: {...{bar: "meh"}}}}} />');
+      const prop = extractProp(
+        '<div foo={{bar: "baz", ...{baz: "bar", foo: {...{bar: "meh"}}}}} />',
+      );
 
       const expected = { bar: 'baz', baz: 'bar', foo: { bar: 'meh' } };
       const actual = getPropValue(prop);
@@ -809,7 +809,9 @@ describe('getPropValue', () => {
     });
 
     it('should evaluate to a correct representation of the object, ignore spread properties', () => {
-      const prop = extractProp('<div foo={{ pathname: manageRoute, state: {...data}}} />');
+      const prop = extractProp(
+        '<div foo={{ pathname: manageRoute, state: {...data}}} />',
+      );
 
       const expected = { pathname: 'manageRoute', state: {} };
       const actual = getPropValue(prop);
@@ -831,13 +833,17 @@ describe('getPropValue', () => {
 
   describe('Sequence array expression', () => {
     it('should evaluate to correct representation of the the array in props', () => {
-      const prop = extractProp('<div foo={[{"type":"Literal","start":821,"end":827}]} />');
+      const prop = extractProp(
+        '<div foo={[{"type":"Literal","start":821,"end":827}]} />',
+      );
 
-      const expected = [{
-        type: 'Literal',
-        start: 821,
-        end: 827,
-      }];
+      const expected = [
+        {
+          type: 'Literal',
+          start: 821,
+          end: 827,
+        },
+      ];
       const actual = getPropValue(prop);
 
       assert.deepEqual(actual, expected);
@@ -909,7 +915,9 @@ describe('getPropValue', () => {
 
   describe('Type Cast Expression', () => {
     it('should return the expression from a type cast', () => {
-      const prop = extractProp('<div foo={(this.handleClick: (event: MouseEvent) => void))} />');
+      const prop = extractProp(
+        '<div foo={(this.handleClick: (event: MouseEvent) => void))} />',
+      );
 
       const expected = 'this.handleClick';
       const actual = getPropValue(prop);
@@ -918,9 +926,9 @@ describe('getPropValue', () => {
     });
   });
 
-  describeIfNotBabylon('Typescript', () => {
+  describe('Typescript', () => {
     beforeEach(() => {
-      changePlugins((pls) => [...pls, 'typescript']);
+      changePlugins(pls => [...pls, 'typescript']);
     });
 
     it('should return string representation of variable identifier wrapped in a Typescript non-null assertion', () => {
@@ -942,7 +950,7 @@ describe('getPropValue', () => {
     });
 
     it('should return string representation of variable identifier wrapped in a Typescript type coercion', () => {
-      changePlugins((pls) => [...pls, 'typescript']);
+      changePlugins(pls => [...pls, 'typescript']);
       const prop = extractProp('<div foo={bar as any} />');
 
       const expected = 'bar';
@@ -954,7 +962,10 @@ describe('getPropValue', () => {
 
   describe('JSX empty expression', () => {
     it('should work with an empty expression', () => {
-      const prop = extractProp('<div>\n{/* Hello there */}\n</div>', 'children');
+      const prop = extractProp(
+        '<div>\n{/* Hello there */}\n</div>',
+        'children',
+      );
       const expected = undefined;
       const actual = getPropValue(prop);
       assert.equal(actual, expected);

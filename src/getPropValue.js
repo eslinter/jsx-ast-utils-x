@@ -11,17 +11,14 @@ const extractValue = (attribute, extractor) => {
 
     return extractor(attribute.value);
   }
-
-  return undefined;
 };
 
 /**
- * Returns the value of a given attribute.
- * Different types of attributes have their associated
- * values in different properties on the object.
+ * Returns the value of a given attribute. Different types of attributes have
+ * their associated values in different properties on the object.
  *
- * This function should return the most *closely* associated
- * value with the intention of the JSX.
+ * This function should return the most _closely_ associated value with the
+ * intention of the JSX.
  *
  * @param attribute - The JSXAttribute collected by AST parser.
  */
@@ -30,13 +27,12 @@ export default function getPropValue(attribute) {
 }
 
 /**
- * Returns the value of a given attribute.
- * Different types of attributes have their associated
- * values in different properties on the object.
+ * Returns the value of a given attribute. Different types of attributes have
+ * their associated values in different properties on the object.
  *
- * This function should return a value only if we can extract
- * a literal value from its attribute (i.e. values that have generic
- * types in JavaScript - strings, numbers, booleans, etc.)
+ * This function should return a value only if we can extract a literal value
+ * from its attribute (i.e. values that have generic types in JavaScript -
+ * strings, numbers, booleans, etc.)
  *
  * @param attribute - The JSXAttribute collected by AST parser.
  */

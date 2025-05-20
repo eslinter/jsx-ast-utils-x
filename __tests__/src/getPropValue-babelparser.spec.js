@@ -1,14 +1,9 @@
 /* eslint-env mocha */
 /* eslint no-template-curly-in-string: 0 */
-import assert from 'assert';
-import {
-  extractProp,
-  changePlugins,
-  fallbackToBabylon,
-  describeIfNotBabylon,
-  setParserName,
-} from '../helper';
+import assert from 'node:assert';
+
 import getPropValue from '../../src/getPropValue';
+import { extractProp, changePlugins, setParserName } from '../helper';
 
 describe('getPropValue', () => {
   beforeEach(() => {
@@ -37,9 +32,9 @@ describe('getPropValue', () => {
       },
     };
     let counter = 0;
-    // eslint-disable-next-line no-console
+
     const errorOrig = console.error;
-    // eslint-disable-next-line no-console
+
     console.error = () => {
       counter += 1;
     };
@@ -48,9 +43,9 @@ describe('getPropValue', () => {
       value = getPropValue(prop);
     }, Error);
 
-    assert.equal(null, value);
+    assert.equal(value, null);
     assert.equal(counter, 1);
-    // eslint-disable-next-line no-console
+
     console.error = errorOrig;
   });
 
@@ -131,8 +126,7 @@ describe('getPropValue', () => {
       assert.equal(actual, expected);
     });
   });
-
-  (fallbackToBabylon ? describe.skip : describe)('JSXFragment', () => {
+  describe('JSXFragment', () => {
     it('should return correct representation of JSX fragment as a string', () => {
       const prop = extractProp('<div foo={<></>} />');
 
@@ -346,7 +340,9 @@ describe('getPropValue', () => {
       actual();
     });
     it('should handle ArrowFunctionExpression as conditional consequent', () => {
-      const prop = extractProp('<div foo={ (true) ? () => null : () => ({})} />');
+      const prop = extractProp(
+        '<div foo={ (true) ? () => null : () => ({})} />',
+      );
 
       const expected = 'function';
       const actual = getPropValue(prop);
@@ -382,7 +378,7 @@ describe('getPropValue', () => {
       assert.equal(actual, expected);
     });
 
-    it('should return undefined when evaluating `undefined && undefined` ', () => {
+    it('should return undefined when evaluating `undefined && undefined`', () => {
       const prop = extractProp('<div foo={undefined && undefined} />');
 
       const expected = undefined;
@@ -409,7 +405,7 @@ describe('getPropValue', () => {
       assert.equal(actual, expected);
     });
 
-    it('should return undefined when evaluating `undefined || undefined` ', () => {
+    it('should return undefined when evaluating `undefined || undefined`', () => {
       const prop = extractProp('<div foo={undefined || undefined} />');
 
       const expected = undefined;
@@ -419,111 +415,57 @@ describe('getPropValue', () => {
     });
 
     it('should correctly infer result of ?? logical expression based on derived values', () => {
-      const runTest = () => {
-        const prop = extractProp('<div foo={bar ?? baz} />');
+      const prop = extractProp('<div foo={bar ?? baz} />');
 
-        const expected = 'bar';
-        const actual = getPropValue(prop);
+      const expected = 'bar';
+      const actual = getPropValue(prop);
 
-        assert.equal(actual, expected);
-      };
-
-      if (fallbackToBabylon) {
-        // eslint-disable-next-line no-undef
-        expect(runTest).toThrow();
-      } else {
-        runTest();
-      }
+      assert.equal(actual, expected);
     });
 
     it('should correctly infer result of ?? logical expression based on derived values', () => {
-      const runTest = () => {
-        const prop = extractProp('<div foo={undefined ?? baz} />');
+      const prop = extractProp('<div foo={undefined ?? baz} />');
 
-        const expected = 'baz';
-        const actual = getPropValue(prop);
+      const expected = 'baz';
+      const actual = getPropValue(prop);
 
-        assert.equal(actual, expected);
-      };
-
-      if (fallbackToBabylon) {
-        // eslint-disable-next-line no-undef
-        expect(runTest).toThrow();
-      } else {
-        runTest();
-      }
+      assert.equal(actual, expected);
     });
 
-    it('should return undefined when evaluating `undefined ?? undefined` ', () => {
-      const runTest = () => {
-        const prop = extractProp('<div foo={undefined ?? undefined} />');
+    it('should return undefined when evaluating `undefined ?? undefined`', () => {
+      const prop = extractProp('<div foo={undefined ?? undefined} />');
 
-        const expected = undefined;
-        const actual = getPropValue(prop);
+      const expected = undefined;
+      const actual = getPropValue(prop);
 
-        assert.equal(actual, expected);
-      };
-
-      if (fallbackToBabylon) {
-        // eslint-disable-next-line no-undef
-        expect(runTest).toThrow();
-      } else {
-        runTest();
-      }
+      assert.equal(actual, expected);
     });
 
-    it('should return undefined when evaluating `null ?? undefined` ', () => {
-      const runTest = () => {
-        const prop = extractProp('<div foo={null ?? undefined} />');
+    it('should return undefined when evaluating `null ?? undefined`', () => {
+      const prop = extractProp('<div foo={null ?? undefined} />');
 
-        const expected = undefined;
-        const actual = getPropValue(prop);
+      const expected = undefined;
+      const actual = getPropValue(prop);
 
-        assert.equal(actual, expected);
-      };
-
-      if (fallbackToBabylon) {
-        // eslint-disable-next-line no-undef
-        expect(runTest).toThrow();
-      } else {
-        runTest();
-      }
+      assert.equal(actual, expected);
     });
 
-    it('should return undefined when evaluating `undefined ?? null` ', () => {
-      const runTest = () => {
-        const prop = extractProp('<div foo={undefined ?? null} />');
+    it('should return null when evaluating `undefined ?? null`', () => {
+      const prop = extractProp('<div foo={undefined ?? null} />');
 
-        const expected = null;
-        const actual = getPropValue(prop);
+      const expected = null;
+      const actual = getPropValue(prop);
 
-        assert.equal(actual, expected);
-      };
-
-      if (fallbackToBabylon) {
-        // eslint-disable-next-line no-undef
-        expect(runTest).toThrow();
-      } else {
-        runTest();
-      }
+      assert.equal(actual, expected);
     });
 
-    it('should return null when evaluating `null ?? null` ', () => {
-      const runTest = () => {
-        const prop = extractProp('<div foo={null ?? null} />');
+    it('should return null when evaluating `null ?? null`', () => {
+      const prop = extractProp('<div foo={null ?? null} />');
 
-        const expected = null;
-        const actual = getPropValue(prop);
+      const expected = null;
+      const actual = getPropValue(prop);
 
-        assert.equal(actual, expected);
-      };
-
-      if (fallbackToBabylon) {
-        // eslint-disable-next-line no-undef
-        expect(runTest).toThrow();
-      } else {
-        runTest();
-      }
+      assert.equal(actual, expected);
     });
   });
 
@@ -538,39 +480,21 @@ describe('getPropValue', () => {
     });
 
     it('should evaluate to a correct representation of member expression with a nullable member', () => {
-      const runTest = () => {
-        const prop = extractProp('<div foo={bar?.baz} />');
+      const prop = extractProp('<div foo={bar?.baz} />');
 
-        const expected = 'bar?.baz';
-        const actual = getPropValue(prop);
+      const expected = 'bar?.baz';
+      const actual = getPropValue(prop);
 
-        assert.equal(actual, expected);
-      };
-
-      if (fallbackToBabylon) {
-        // eslint-disable-next-line no-undef
-        expect(runTest).toThrow();
-      } else {
-        runTest();
-      }
+      assert.equal(actual, expected);
     });
 
     it('should evaluate to a correct representation of optional call expression', () => {
-      const runTest = () => {
-        const prop = extractProp('<div foo={bar.baz?.(quux)} />');
+      const prop = extractProp('<div foo={bar.baz?.(quux)} />');
 
-        const expected = 'bar.baz?.(quux)';
-        const actual = getPropValue(prop);
+      const expected = 'bar.baz?.(quux)';
+      const actual = getPropValue(prop);
 
-        assert.equal(actual, expected);
-      };
-
-      if (fallbackToBabylon) {
-        // eslint-disable-next-line no-undef
-        expect(runTest).toThrow();
-      } else {
-        runTest();
-      }
+      assert.equal(actual, expected);
     });
   });
 
@@ -768,8 +692,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `!=` operator correctly', () => {
@@ -779,8 +703,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `===` operator correctly', () => {
@@ -790,8 +714,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `!==` operator correctly', () => {
@@ -801,8 +725,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `<` operator correctly', () => {
@@ -812,8 +736,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `>` operator correctly', () => {
@@ -823,8 +747,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `<=` operator correctly', () => {
@@ -834,8 +758,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `>=` operator correctly', () => {
@@ -845,8 +769,8 @@ describe('getPropValue', () => {
       const trueVal = getPropValue(trueProp);
       const falseVal = getPropValue(falseProp);
 
-      assert.equal(true, trueVal);
-      assert.equal(false, falseVal);
+      assert.equal(trueVal, true);
+      assert.equal(falseVal, false);
     });
 
     it('should evaluate the `<<` operator correctly', () => {
@@ -987,7 +911,9 @@ describe('getPropValue', () => {
     });
 
     it('should evaluate to a correct representation of the object, ignore spread properties', () => {
-      const prop = extractProp('<div foo={{bar: "baz", ...{baz: "bar", foo: {...{bar: "meh"}}}}} />');
+      const prop = extractProp(
+        '<div foo={{bar: "baz", ...{baz: "bar", foo: {...{bar: "meh"}}}}} />',
+      );
 
       const expected = { bar: 'baz', baz: 'bar', foo: { bar: 'meh' } };
       const actual = getPropValue(prop);
@@ -996,7 +922,9 @@ describe('getPropValue', () => {
     });
 
     it('should evaluate to a correct representation of the object, ignore spread properties', () => {
-      const prop = extractProp('<div foo={{ pathname: manageRoute, state: {...data}}} />');
+      const prop = extractProp(
+        '<div foo={{ pathname: manageRoute, state: {...data}}} />',
+      );
 
       const expected = { pathname: 'manageRoute', state: {} };
       const actual = getPropValue(prop);
@@ -1082,18 +1010,20 @@ describe('getPropValue', () => {
   describe('Type Cast Expression', () => {
     it('should throw a parsing error', () => {
       let counter = 0;
-      // eslint-disable-next-line no-console
+
       const warnOrig = console.warn;
-      // eslint-disable-next-line no-console
+
       console.warn = () => {
         counter += 1;
       };
-      // eslint-disable-next-line no-undef
+
       expect(() => {
-        extractProp('<div foo={(this.handleClick: (event: MouseEvent) => void))} />');
+        extractProp(
+          '<div foo={(this.handleClick: (event: MouseEvent) => void))} />',
+        );
       }).toThrow();
       assert.equal(counter, 1);
-      // eslint-disable-next-line no-console
+
       console.warn = warnOrig;
     });
   });
@@ -1118,9 +1048,9 @@ describe('getPropValue', () => {
     });
   });
 
-  describeIfNotBabylon('Typescript', () => {
+  describe('Typescript', () => {
     beforeEach(() => {
-      changePlugins((pls) => [...pls, 'typescript']);
+      changePlugins(pls => [...pls, 'typescript']);
     });
 
     it('should return string representation of variable identifier wrapped in a Typescript non-null assertion', () => {
@@ -1151,9 +1081,9 @@ describe('getPropValue', () => {
     });
   });
 
-  describeIfNotBabylon('TSNonNullExpression', () => {
+  describe('TSNonNullExpression', () => {
     beforeEach(() => {
-      changePlugins((pls) => [...pls, 'typescript']);
+      changePlugins(pls => [...pls, 'typescript']);
     });
 
     it('should return string representation of a TSNonNullExpression of form `variable!`', () => {
@@ -1268,7 +1198,10 @@ describe('getPropValue', () => {
 
   describe('JSX empty expression', () => {
     it('should work with an empty expression', () => {
-      const prop = extractProp('<div>\n{/* Hello there */}\n</div>', 'children');
+      const prop = extractProp(
+        '<div>\n{/* Hello there */}\n</div>',
+        'children',
+      );
       const expected = undefined;
       const actual = getPropValue(prop);
       assert.equal(actual, expected);

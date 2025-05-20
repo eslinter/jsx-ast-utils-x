@@ -1,7 +1,8 @@
 /* eslint-env mocha */
-import assert from 'assert';
-import { getOpeningElement, setParserName } from '../helper';
+import assert from 'node:assert';
+
 import getProp from '../../src/getProp';
+import { getOpeningElement, setParserName } from '../helper';
 
 describe('getProp', () => {
   beforeEach(() => {

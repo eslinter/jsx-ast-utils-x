@@ -1,12 +1,5 @@
 module.exports = {
-  coverageReporters: [
-    'lcov',
-    'html',
-    'json',
-  ],
+  coverageReporters: ['lcov', 'html', 'json'],
   coverageDirectory: 'coverage',
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    'helper.js',
-  ],
+  testPathIgnorePatterns: ['/node_modules/', 'helper.js'],
 };

@@ -1,7 +1,8 @@
 /* eslint-env mocha */
-import assert from 'assert';
-import { extractProp, setParserName } from '../helper';
+import assert from 'node:assert';
+
 import propName from '../../src/propName';
+import { extractProp, setParserName } from '../helper';
 
 describe('propName', () => {
   beforeEach(() => {
@@ -15,11 +16,15 @@ describe('propName', () => {
   });
 
   it('should throw an error if the argument is missing', () => {
-    assert.throws(() => { propName(); }, Error);
+    assert.throws(() => {
+      propName();
+    }, Error);
   });
 
   it('should throw an error if the argument not a JSX node', () => {
-    assert.throws(() => { propName({ a: 'foo' }); }, Error);
+    assert.throws(() => {
+      propName({ a: 'foo' });
+    }, Error);
   });
 
   it('should return correct name for normal prop', () => {

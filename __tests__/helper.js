@@ -1,13 +1,10 @@
 /* eslint-env jest */
+import * as babelParser from '@babel/parser';
+import flowParser from 'flow-parser';
+
 import getProp from '../src/getProp';
 
-const nodeVersion = parseInt(process.version.match(/^v(\d+)\./)[1], 10);
-
-export const fallbackToBabylon = nodeVersion < 6;
-
 let parserName;
-const babelParser = fallbackToBabylon ? require('babylon') : require('@babel/parser');
-const flowParser = require('flow-parser');
 
 const defaultPlugins = [
   'jsx',
@@ -15,7 +12,7 @@ const defaultPlugins = [
   'estree',
   'objectRestSpread',
   'optionalChaining',
-  // 'nullishCoalescing', // TODO: update to babel 7
+  'nullishCoalescing',
 ];
 let plugins = [...defaultPlugins];
 let isESM = false;
@@ -30,7 +27,9 @@ export function changePlugins(pluginOrFn) {
   } else if (typeof pluginOrFn === 'function') {
     plugins = pluginOrFn(plugins);
   } else {
-    throw new Error('changePlugins argument should be either an array or a function');
+    throw new TypeError(
+      'changePlugins argument should be either an array or a function',
+    );
   }
 }
 
@@ -49,17 +48,19 @@ function parse(code) {
   }
   if (parserName === 'babel') {
     try {
-      return babelParser.parse(code, { plugins, sourceFilename: 'test.js', ...(isESM && { sourceType: 'module' }) });
-    } catch (_) {
-      // eslint-disable-next-line no-console
-      console.warn(`Failed to parse with ${fallbackToBabylon ? 'babylon' : 'Babel'} parser.`);
+      return babelParser.parse(code, {
+        plugins,
+        sourceFilename: 'test.js',
+        ...(isESM && { sourceType: 'module' }),
+      });
+    } catch {
+      console.warn('Failed to parse with Babel parser.');
     }
   }
   if (parserName === 'flow') {
     try {
       return flowParser.parse(code, { plugins });
-    } catch (_) {
-      // eslint-disable-next-line no-console
+    } catch {
       console.warn('Failed to parse with the Flow parser');
     }
   }
@@ -68,17 +69,12 @@ function parse(code) {
 
 export function getOpeningElement(code) {
   const parsedCode = parse(code);
-  let body;
-  if (parsedCode.program) {
-    // eslint-disable-next-line prefer-destructuring
-    body = parsedCode.program.body;
-  } else {
-    // eslint-disable-next-line prefer-destructuring
-    body = parsedCode.body;
-  }
+  const body = parsedCode.program?.body ?? parsedCode.body;
   if (Array.isArray(body) && body[0] != null) {
     const [{ expression }] = body;
-    return expression.type === 'JSXFragment' ? expression.openingFragment : expression.openingElement;
+    return expression.type === 'JSXFragment'
+      ? expression.openingFragment
+      : expression.openingElement;
   }
 
   return null;
@@ -89,5 +85,3 @@ export function extractProp(code, prop = 'foo') {
   const { attributes: props } = node;
   return getProp(props, prop);
 }
-
-export const describeIfNotBabylon = fallbackToBabylon ? describe.skip : describe;
