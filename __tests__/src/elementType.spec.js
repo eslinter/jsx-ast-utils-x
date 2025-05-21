@@ -1,7 +1,8 @@
 /* eslint-env mocha */
-import assert from 'assert';
-import { getOpeningElement, setParserName, describeIfNotBabylon } from '../helper';
+import assert from 'node:assert';
+
 import elementType from '../../src/elementType';
+import { getOpeningElement, setParserName } from '../helper';
 
 describe('elementType tests', () => {
   beforeEach(() => {
@@ -15,11 +16,15 @@ describe('elementType tests', () => {
   });
 
   it('should throw an error if the argument is missing', () => {
-    assert.throws(() => { elementType(); }, Error);
+    assert.throws(() => {
+      elementType();
+    }, Error);
   });
 
   it('should throw an error if the argument not a JSX node', () => {
-    assert.throws(() => { elementType({ a: 'foo' }); }, Error);
+    assert.throws(() => {
+      elementType({ a: 'foo' });
+    }, Error);
   });
 
   it('should return the correct type of the DOM element given its node object', () => {
@@ -82,7 +87,7 @@ describe('elementType tests', () => {
     assert.equal(actual, expected);
   });
 
-  describeIfNotBabylon('fragments', () => {
+  describe('fragments', () => {
     it('should work with fragments', () => {
       const code = '<>foo</>';
       const node = getOpeningElement(code);

@@ -1,11 +1,7 @@
 /**
- * Extractor function for a SpreadElement type value node.
- * We can't statically evaluate an array spread, so just return
- * undefined.
- *
- * @param - value - AST Value object with type `SpreadElement`
- * @returns - An prototypeless object.
+ * Extractor function for a SpreadElement type value node. We can't statically
+ * evaluate an array spread, so just return undefined.
  */
 export default function extractValueFromSpreadElement() {
-  return undefined;
+  //
 }

@@ -8,6 +8,8 @@ function resolveMemberExpressions(object = {}, property = {}) {
 
 /**
  * Returns the tagName associated with a JSXElement.
+ *
+ * @param node
  */
 export default function elementType(node = {}) {
   const { name } = node;

@@ -1,1 +1,1 @@
-module.exports = require('./lib').eventHandlers; // eslint-disable-line import/no-unresolved
+module.exports = require('./lib').eventHandlers;

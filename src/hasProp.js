@@ -6,13 +6,21 @@ const DEFAULT_OPTIONS = {
 };
 
 /**
- * Returns boolean indicating whether an prop exists on the props
- * property of a JSX element node.
+ * Returns boolean indicating whether an prop exists on the props property of a
+ * JSX element node.
+ *
+ * @param props
+ * @param prop
+ * @param options
  */
-export default function hasProp(props = [], prop = '', options = DEFAULT_OPTIONS) {
+export default function hasProp(
+  props = [],
+  prop = '',
+  options = DEFAULT_OPTIONS,
+) {
   const propToCheck = options.ignoreCase ? prop.toUpperCase() : prop;
 
-  return props.some((attribute) => {
+  return props.some(attribute => {
     // If the props contain a spread prop, then refer to strict param.
     if (attribute.type === 'JSXSpreadAttribute') {
       return !options.spreadStrict;
@@ -27,21 +35,37 @@ export default function hasProp(props = [], prop = '', options = DEFAULT_OPTIONS
 }
 
 /**
- * Given the props on a node and a list of props to check, this returns a boolean
- * indicating if any of them exist on the node.
+ * Given the props on a node and a list of props to check, this returns a
+ * boolean indicating if any of them exist on the node.
+ *
+ * @param nodeProps
+ * @param props
+ * @param options
  */
-export function hasAnyProp(nodeProps = [], props = [], options = DEFAULT_OPTIONS) {
+export function hasAnyProp(
+  nodeProps = [],
+  props = [],
+  options = DEFAULT_OPTIONS,
+) {
   const propsToCheck = typeof props === 'string' ? props.split(' ') : props;
 
-  return propsToCheck.some((prop) => hasProp(nodeProps, prop, options));
+  return propsToCheck.some(prop => hasProp(nodeProps, prop, options));
 }
 
 /**
- * Given the props on a node and a list of props to check, this returns a boolean
- * indicating if all of them exist on the node
+ * Given the props on a node and a list of props to check, this returns a
+ * boolean indicating if all of them exist on the node
+ *
+ * @param nodeProps
+ * @param props
+ * @param options
  */
-export function hasEveryProp(nodeProps = [], props = [], options = DEFAULT_OPTIONS) {
+export function hasEveryProp(
+  nodeProps = [],
+  props = [],
+  options = DEFAULT_OPTIONS,
+) {
   const propsToCheck = typeof props === 'string' ? props.split(' ') : props;
 
-  return propsToCheck.every((prop) => hasProp(nodeProps, prop, options));
+  return propsToCheck.every(prop => hasProp(nodeProps, prop, options));
 }

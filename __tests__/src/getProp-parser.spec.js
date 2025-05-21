@@ -1,9 +1,6 @@
 /* eslint-env mocha */
-import assert from 'assert';
-import entries from 'object.entries';
-import fromEntries from 'object.fromentries';
-import { getOpeningElement, setParserName, fallbackToBabylon } from '../helper';
 import getProp from '../../src/getProp';
+import { getOpeningElement, setParserName } from '../helper';
 
 const literal = {
   source: '<div {...{ id: "foo" }} />',
@@ -18,8 +15,8 @@ const expression1 = {
 };
 
 const expression2 = {
-  source: '<div {...{ id: `foo${bar}baz` }} />', // eslint-disable-line no-template-curly-in-string
-  target: '<div id={`foo${bar}baz`} />', // eslint-disable-line no-template-curly-in-string
+  source: '<div {...{ id: `foo${bar}baz` }} />',
+  target: '<div id={`foo${bar}baz`} />',
   offset: { keyOffset: -6, valueOffset: -6 },
 };
 
@@ -53,14 +50,7 @@ function actualTest(parserName, test) {
   const sourceResult = getProp(sourceProps, prop);
   const targetResult = getProp(targetProps, prop);
 
-  if (fallbackToBabylon && parserName === 'babel' && test === literal) {
-    // Babylon (node < 6) adds an `extra: null` prop to a literal if it is parsed from a
-    // JSXAttribute, other literals don't get this.
-    sourceResult.value.extra = null;
-  }
-
-  assert.deepStrictEqual(
-    adjustLocations(sourceResult, offset),
+  expect(adjustLocations(sourceResult, offset)).toEqual(
     adjustRange(targetResult),
   );
 }
@@ -71,7 +61,9 @@ function adjustRange({ name, value: { expression, ...value }, ...node }) {
     name: adjustNodeRange(name),
     value: {
       ...adjustNodeRange(value),
-      ...(expression ? { expression: adjustNodeRangeRecursively(expression) } : {}),
+      ...(expression
+        ? { expression: adjustNodeRangeRecursively(expression) }
+        : {}),
     },
   };
 }
@@ -103,7 +95,7 @@ function adjustNodeRangeRecursively(node) {
 }
 
 function stripConstructors(value) {
-  return JSON.parse(JSON.stringify(value));
+  return structuredClone(value);
 }
 
 function adjustLocations(node, { keyOffset, valueOffset }) {
@@ -113,7 +105,10 @@ function adjustLocations(node, { keyOffset, valueOffset }) {
       startOffset: keyOffset,
       endOffset: valueOffset + (hasExpression ? 1 : 0),
     }),
-    name: adjustNodeLocations(node.name, { startOffset: keyOffset, endOffset: keyOffset }),
+    name: adjustNodeLocations(node.name, {
+      startOffset: keyOffset,
+      endOffset: keyOffset,
+    }),
     value: {
       ...adjustNodeLocations(node.value, {
         startOffset: valueOffset - (hasExpression ? 1 : 0),
@@ -121,13 +116,12 @@ function adjustLocations(node, { keyOffset, valueOffset }) {
       }),
       ...(hasExpression
         ? {
-          expression: adjustLocationsRecursively(
-            node.value.expression,
-            { startOffset: valueOffset, endOffset: valueOffset },
-          ),
-        }
-        : {}
-      ),
+            expression: adjustLocationsRecursively(node.value.expression, {
+              startOffset: valueOffset,
+              endOffset: valueOffset,
+            }),
+          }
+        : {}),
     },
   };
 }
@@ -159,11 +153,15 @@ function adjustNodeLocations(node, { startOffset, endOffset }) {
 
 function adjustLocationsRecursively(node, { startOffset, endOffset }) {
   if (Array.isArray(node)) {
-    return node.map((x) => adjustLocationsRecursively(x, { startOffset, endOffset }));
+    return node.map(x =>
+      adjustLocationsRecursively(x, { startOffset, endOffset }),
+    );
   }
   if (node && typeof node === 'object') {
     return adjustNodeLocations(
-      mapValues(node, (x) => adjustLocationsRecursively(x, { startOffset, endOffset })),
+      mapValues(node, x =>
+        adjustLocationsRecursively(x, { startOffset, endOffset }),
+      ),
       { startOffset, endOffset },
     );
   }
@@ -172,5 +170,5 @@ function adjustLocationsRecursively(node, { startOffset, endOffset }) {
 }
 
 function mapValues(o, f) {
-  return fromEntries(entries(o).map(([k, v]) => [k, f(v)]));
+  return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, f(v)]));
 }

@@ -1,30 +1,86 @@
-# jsx-ast-utils <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
+# jsx-ast-utils-x
 
-[![github actions][actions-image]][actions-url]
-[![coverage][codecov-image]][codecov-url]
-[![dependency status][deps-svg]][deps-url]
-[![dev dependency status][dev-deps-svg]][dev-deps-url]
-[![License][license-image]][license-url]
-[![Downloads][downloads-image]][downloads-url]
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/eslinter/jsx-ast-utils-x/ci.yml?branch=main)](https://github.com/eslinter/jsx-ast-utils-x/actions/workflows/ci.yml?query=branch%3Amain)
+[![Codecov](https://img.shields.io/codecov/c/github/eslinter/jsx-ast-utils-x.svg)](https://codecov.io/gh/eslinter/jsx-ast-utils-x)
+[![type-coverage](https://img.shields.io/badge/dynamic/json.svg?label=type-coverage&prefix=%E2%89%A5&suffix=%&query=$.typeCoverage.atLeast&uri=https%3A%2F%2Fraw.githubusercontent.com%2Feslinter%2Fjsx-ast-utils-x%2Fmain%2Fpackage.json)](https://github.com/plantain-00/type-coverage)
+[![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/eslinter/jsx-ast-utils-x)](https://coderabbit.ai)
+[![npm](https://img.shields.io/npm/v/jsx-ast-utils-x.svg)](https://www.npmjs.com/package/jsx-ast-utils-x)
+[![GitHub Release](https://img.shields.io/github/release/eslinter/jsx-ast-utils-x)](https://github.com/eslinter/jsx-ast-utils-x/releases)
 
-[![npm badge][npm-badge-png]][package-url]
+[![Conventional Commits](https://img.shields.io/badge/conventional%20commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![Code Style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![changesets](https://img.shields.io/badge/maintained%20with-changesets-176de3.svg)](https://github.com/changesets/changesets)
 
 AST utility module for statically analyzing JSX.
 
+## TOC <!-- omit in toc -->
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [ESLint example](#eslint-example)
+- [API](#api)
+  - [AST Resources](#ast-resources)
+  - [hasProp](#hasprop)
+    - [Props](#props)
+    - [Prop](#prop)
+    - [Options](#options)
+  - [hasAnyProp](#hasanyprop)
+    - [Props](#props-1)
+    - [Prop](#prop-1)
+    - [Options](#options-1)
+  - [hasEveryProp](#haseveryprop)
+    - [Props](#props-2)
+    - [Prop](#prop-2)
+    - [Options](#options-2)
+  - [getProp](#getprop)
+    - [Props](#props-3)
+    - [Prop](#prop-3)
+    - [Options](#options-3)
+  - [elementType](#elementtype)
+    - [Node](#node)
+  - [getPropValue](#getpropvalue)
+    - [Prop](#prop-4)
+  - [getLiteralPropValue](#getliteralpropvalue)
+    - [Prop](#prop-5)
+  - [propName](#propname)
+    - [Prop](#prop-6)
+  - [eventHandlers](#eventhandlers)
+    - [eventHandlersByType](#eventhandlersbytype)
+- [Sponsors and Backers](#sponsors-and-backers)
+  - [Sponsors](#sponsors)
+  - [Backers](#backers)
+- [Changelog](#changelog)
+- [License](#license)
+
 ## Installation
+
 ```sh
-$ npm i jsx-ast-utils --save
+# npm
+npm i jsx-ast-utils-x --save
+
+# yarn
+yarn add jsx-ast-utils-x
+
+# pnpm
+pnpm add jsx-ast-utils-x
+
+# bun
+bun add jsx-ast-utils-x
 ```
 
 ## Usage
-This is a utility module to evaluate AST objects for JSX syntax. This can be super useful when writing linting rules for JSX code. It was originally in the code for [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y), however I thought it could be useful to be extracted and maintained separately so **you** could write new interesting rules to statically analyze JSX.
+
+This is a utility module to evaluate AST objects for JSX syntax. This can be super useful when writing linting rules for JSX code. It was originally in the code for [eslint-plugin-jsx-a11y](https://github.com/eslinter/eslint-plugin-jsx-a11y), however I thought it could be useful to be extracted and maintained separately so **you** could write new interesting rules to statically analyze JSX.
 
 ### ESLint example
+
 ```js
-import { hasProp } from 'jsx-ast-utils';
-// OR: var hasProp = require('jsx-ast-utils').hasProp;
-// OR: const hasProp = require('jsx-ast-utils/hasProp');
-// OR: import hasProp from 'jsx-ast-utils/hasProp';
+import { hasProp } from 'jsx-ast-utils-x';
+// OR: var hasProp = require('jsx-ast-utils-x').hasProp;
+// OR: const hasProp = require('jsx-ast-utils-x/hasProp');
+// OR: import hasProp from 'jsx-ast-utils-x/hasProp';
 
 module.exports = context => ({
   JSXOpeningElement: node => {
@@ -33,34 +89,44 @@ module.exports = context => ({
     if (onChange) {
       context.report({
         node,
-        message: `No onChange!`
+        message: `No onChange!`,
       });
     }
-  }
+  },
 });
 ```
 
 ## API
+
 ### AST Resources
+
 1. [JSX spec](https://github.com/facebook/jsx/blob/master/AST.md)
 2. [JS spec](https://github.com/estree/estree/blob/master/spec.md)
 
 ### hasProp
+
 ```js
 hasProp(props, prop, options);
 ```
+
 Returns boolean indicating whether an prop exists as an attribute on a JSX element node.
 
 #### Props
+
 Object - The attributes on the visited node. (Usually `node.attributes`).
+
 #### Prop
+
 String - A string representation of the prop you want to check for existence.
+
 #### Options
+
 Object - An object representing options for existence checking
-  1. `ignoreCase` - automatically set to `true`.
-  2. `spreadStrict` - automatically set to `true`. This means if spread operator exists in
-     props, it will assume the prop you are looking for is not in the spread.
-     Example: `<div {...props} />` looking for specific prop here will return false if `spreadStrict` is `true`.
+
+1. `ignoreCase` - automatically set to `true`.
+2. `spreadStrict` - automatically set to `true`. This means if spread operator exists in
+   props, it will assume the prop you are looking for is not in the spread.
+   Example: `<div {...props} />` looking for specific prop here will return false if `spreadStrict` is `true`.
 
 <hr />
 
@@ -69,18 +135,25 @@ Object - An object representing options for existence checking
 ```js
 hasAnyProp(props, prop, options);
 ```
+
 Returns a boolean indicating if **any** of props in `prop` argument exist on the node.
 
 #### Props
+
 Object - The attributes on the visited node. (Usually `node.attributes`).
+
 #### Prop
+
 Array<String> - An array of strings representing the props you want to check for existence.
+
 #### Options
+
 Object - An object representing options for existence checking
-  1. `ignoreCase` - automatically set to `true`.
-  2. `spreadStrict` - automatically set to `true`. This means if spread operator exists in
-     props, it will assume the prop you are looking for is not in the spread.
-     Example: `<div {...props} />` looking for specific prop here will return false if `spreadStrict` is `true`.
+
+1. `ignoreCase` - automatically set to `true`.
+2. `spreadStrict` - automatically set to `true`. This means if spread operator exists in
+   props, it will assume the prop you are looking for is not in the spread.
+   Example: `<div {...props} />` looking for specific prop here will return false if `spreadStrict` is `true`.
 
 <hr />
 
@@ -89,16 +162,23 @@ Object - An object representing options for existence checking
 ```js
 hasEveryProp(props, prop, options);
 ```
+
 Returns a boolean indicating if **all** of props in `prop` argument exist on the node.
 
 #### Props
+
 Object - The attributes on the visited node. (Usually `node.attributes`).
+
 #### Prop
+
 Array<String> - An array of strings representing the props you want to check for existence.
+
 #### Options
+
 Object - An object representing options for existence checking
- 1. `ignoreCase` - automatically set to `true`.
- 2. `spreadStrict` - automatically set to `true`. This means if spread operator exists in
+
+1.  `ignoreCase` - automatically set to `true`.
+2.  `spreadStrict` - automatically set to `true`. This means if spread operator exists in
     props, it will assume the prop you are looking for is not in the spread.
     Example: `<div {...props} />` looking for specific prop here will return false if `spreadStrict` is `true`.
 
@@ -109,25 +189,35 @@ Object - An object representing options for existence checking
 ```js
 getProp(props, prop, options);
 ```
+
 Returns the JSXAttribute itself or undefined, indicating the prop is not present on the JSXOpeningElement.
 
 #### Props
+
 Object - The attributes on the visited node. (Usually `node.attributes`).
+
 #### Prop
+
 String - A string representation of the prop you want to check for existence.
+
 #### Options
+
 Object - An object representing options for existence checking
-  1. `ignoreCase` - automatically set to `true`.
+
+1. `ignoreCase` - automatically set to `true`.
 
 <hr />
 
 ### elementType
+
 ```js
-elementType(node)
+elementType(node);
 ```
+
 Returns the tagName associated with a JSXElement.
 
 #### Node
+
 Object - The visited JSXElement node object.
 
 <hr />
@@ -137,11 +227,13 @@ Object - The visited JSXElement node object.
 ```js
 getPropValue(prop);
 ```
+
 Returns the value of a given attribute. Different types of attributes have their associated values in different properties on the object.
 
-This function should return the most *closely* associated value with the intention of the JSX.
+This function should return the most _closely_ associated value with the intention of the JSX.
 
 #### Prop
+
 Object - The JSXAttribute collected by AST parser.
 
 <hr />
@@ -151,11 +243,13 @@ Object - The JSXAttribute collected by AST parser.
 ```js
 getLiteralPropValue(prop);
 ```
+
 Returns the value of a given attribute. Different types of attributes have their associated values in different properties on the object.
 
 This function should return a value only if we can extract a literal value from its attribute (i.e. values that have generic types in JavaScript - strings, numbers, booleans, etc.)
 
 #### Prop
+
 Object - The JSXAttribute collected by AST parser.
 
 <hr />
@@ -165,9 +259,11 @@ Object - The JSXAttribute collected by AST parser.
 ```js
 propName(prop);
 ```
+
 Returns the name associated with a JSXAttribute. For example, given `<div foo="bar" />` and the JSXAttribute for `foo`, this will return the string `"foo"`.
 
 #### Prop
+
 Object - The JSXAttribute collected by AST parser.
 
 <hr />
@@ -280,18 +376,30 @@ console.log(eventHandlersByType);
 */
 ```
 
-[package-url]: https://npmjs.org/package/jsx-ast-utils
-[npm-version-svg]: https://versionbadg.es/jsx-eslint/jsx-ast-utils.svg
-[deps-svg]: https://david-dm.org/jsx-eslint/jsx-ast-utils.svg
-[deps-url]: https://david-dm.org/jsx-eslint/jsx-ast-utils
-[dev-deps-svg]: https://david-dm.org/jsx-eslint/jsx-ast-utils/dev-status.svg
-[dev-deps-url]: https://david-dm.org/jsx-eslint/jsx-ast-utils#info=devDependencies
-[npm-badge-png]: https://nodei.co/npm/jsx-ast-utils.png?downloads=true&stars=true
-[license-image]: https://img.shields.io/npm/l/jsx-ast-utils.svg
-[license-url]: LICENSE
-[downloads-image]: https://img.shields.io/npm/dm/jsx-ast-utils.svg
-[downloads-url]: https://npm-stat.com/charts.html?package=jsx-ast-utils
-[codecov-image]: https://codecov.io/gh/jsx-eslint/jsx-ast-utils/branch/main/graphs/badge.svg
-[codecov-url]: https://app.codecov.io/gh/jsx-eslint/jsx-ast-utils/
-[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/jsx-eslint/jsx-ast-utils
-[actions-url]: https://github.com/jsx-eslint/jsx-ast-utils/actions
+## Sponsors and Backers
+
+[![Sponsors and Backers](https://raw.githubusercontent.com/1stG/static/master/sponsors.svg)](https://github.com/sponsors/JounQin)
+
+### Sponsors
+
+| 1stG                                                                                                                   | RxTS                                                                                                                   | UnTS                                                                                                                   |
+| ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [![1stG Open Collective sponsors](https://opencollective.com/1stG/organizations.svg)](https://opencollective.com/1stG) | [![RxTS Open Collective sponsors](https://opencollective.com/rxts/organizations.svg)](https://opencollective.com/rxts) | [![UnTS Open Collective sponsors](https://opencollective.com/unts/organizations.svg)](https://opencollective.com/unts) |
+
+### Backers
+
+| 1stG                                                                                                                | RxTS                                                                                                                | UnTS                                                                                                                |
+| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| [![1stG Open Collective backers](https://opencollective.com/1stG/individuals.svg)](https://opencollective.com/1stG) | [![RxTS Open Collective backers](https://opencollective.com/rxts/individuals.svg)](https://opencollective.com/rxts) | [![UnTS Open Collective backers](https://opencollective.com/unts/individuals.svg)](https://opencollective.com/unts) |
+
+## Changelog
+
+Detailed changes for each release are documented in [CHANGELOG.md](./CHANGELOG.md).
+
+## License
+
+[MIT][] © [JounQin][]@[1stG.me][]
+
+[1stG.me]: https://www.1stG.me
+[JounQin]: https://github.com/JounQin
+[MIT]: http://opensource.org/licenses/MIT

@@ -1,31 +1,32 @@
-import Literal from '../Literal';
 import JSXElement from '../JSXElement';
 import JSXFragment from '../JSXFragment';
 import JSXText from '../JSXText';
-import Identifier from './Identifier';
-import TaggedTemplateExpression from './TaggedTemplateExpression';
-import TemplateLiteral from './TemplateLiteral';
+import Literal from '../Literal';
+
+import ArrayExpression from './ArrayExpression';
+import AssignmentExpression from './AssignmentExpression';
+import BinaryExpression from './BinaryExpression';
+import BindExpression from './BindExpression';
+import CallExpression from './CallExpression';
+import ChainExpression from './ChainExpression';
+import ConditionalExpression from './ConditionalExpression';
 import FunctionExpression from './FunctionExpression';
+import Identifier from './Identifier';
 import LogicalExpression from './LogicalExpression';
 import MemberExpression from './MemberExpression';
-import ChainExpression from './ChainExpression';
+import NewExpression from './NewExpression';
+import ObjectExpression from './ObjectExpression';
 import OptionalCallExpression from './OptionalCallExpression';
 import OptionalMemberExpression from './OptionalMemberExpression';
-import CallExpression from './CallExpression';
-import UnaryExpression from './UnaryExpression';
-import ThisExpression from './ThisExpression';
-import ConditionalExpression from './ConditionalExpression';
-import BinaryExpression from './BinaryExpression';
-import ObjectExpression from './ObjectExpression';
-import NewExpression from './NewExpression';
-import UpdateExpression from './UpdateExpression';
-import ArrayExpression from './ArrayExpression';
-import BindExpression from './BindExpression';
-import SpreadElement from './SpreadElement';
-import TypeCastExpression from './TypeCastExpression';
 import SequenceExpression from './SequenceExpression';
+import SpreadElement from './SpreadElement';
 import TSNonNullExpression from './TSNonNullExpression';
-import AssignmentExpression from './AssignmentExpression';
+import TaggedTemplateExpression from './TaggedTemplateExpression';
+import TemplateLiteral from './TemplateLiteral';
+import ThisExpression from './ThisExpression';
+import TypeCastExpression from './TypeCastExpression';
+import UnaryExpression from './UnaryExpression';
+import UpdateExpression from './UpdateExpression';
 
 // Composition map of types to their extractor functions.
 const TYPES = {
@@ -62,30 +63,26 @@ const TYPES = {
 
 const noop = () => null;
 
-const errorMessage = (expression) => `The prop value with an expression type of ${expression} could not be resolved. Please file an issue ( https://github.com/jsx-eslint/jsx-ast-utils/issues/new ) to get this fixed immediately.`;
+const errorMessage = expression =>
+  `The prop value with an expression type of ${expression} could not be resolved. Please file an issue ( https://github.com/jsx-eslint/jsx-ast-utils/issues/new ) to get this fixed immediately.`;
 
 /**
- * This function maps an AST value node
- * to its correct extractor function for its
- * given type.
+ * This function maps an AST value node to its correct extractor function for
+ * its given type.
  *
- * This will map correctly for *all* possible expression types.
+ * This will map correctly for _all_ possible expression types.
  *
- * @param - value - AST Value object with type `JSXExpressionContainer`
+ * @param value Value - AST Value object with type `JSXExpressionContainer`
  * @returns The extracted value.
  */
 export default function extract(value) {
   // Value will not have the expression property when we recurse.
   // The type for expression on ArrowFunctionExpression is a boolean.
   let expression;
-  if (
-    typeof value.expression !== 'boolean'
-    && value.expression
-  ) {
-    expression = value.expression; // eslint-disable-line prefer-destructuring
-  } else {
-    expression = value;
-  }
+  expression =
+    typeof value.expression !== 'boolean' && value.expression
+      ? value.expression
+      : value;
   let { type } = expression;
 
   // Typescript NonNull Expression is wrapped & it would end up in the wrong extractor
@@ -93,7 +90,7 @@ export default function extract(value) {
     type = 'TSNonNullExpression';
   }
 
-  while (type === 'TSAsExpression') {
+  while (type === 'AsExpression' || type === 'TSAsExpression') {
     ({ type } = expression);
     if (expression.expression) {
       ({ expression } = expression);
@@ -101,7 +98,6 @@ export default function extract(value) {
   }
 
   if (TYPES[type] === undefined) {
-    // eslint-disable-next-line no-console
     console.error(errorMessage(type));
     return null;
   }
@@ -112,14 +108,14 @@ export default function extract(value) {
 // Composition map of types to their extractor functions to handle literals.
 const LITERAL_TYPES = {
   ...TYPES,
-  Literal: (value) => {
+  Literal: value => {
     const extractedVal = TYPES.Literal.call(undefined, value);
     const isNull = extractedVal === null;
     // This will be convention for attributes that have null
     // value explicitly defined (<div prop={null} /> maps to 'null').
     return isNull ? 'null' : extractedVal;
   },
-  Identifier: (value) => {
+  Identifier: value => {
     const isUndefined = TYPES.Identifier.call(undefined, value) === undefined;
     return isUndefined ? undefined : null;
   },
@@ -133,11 +129,11 @@ const LITERAL_TYPES = {
   OptionalCallExpression: noop,
   OptionalMemberExpression: noop,
   CallExpression: noop,
-  UnaryExpression: (value) => {
+  UnaryExpression: value => {
     const extractedVal = TYPES.UnaryExpression.call(undefined, value);
     return extractedVal === undefined ? null : extractedVal;
   },
-  UpdateExpression: (value) => {
+  UpdateExpression: value => {
     const extractedVal = TYPES.UpdateExpression.call(undefined, value);
     return extractedVal === undefined ? null : extractedVal;
   },
@@ -146,9 +142,9 @@ const LITERAL_TYPES = {
   BinaryExpression: noop,
   ObjectExpression: noop,
   NewExpression: noop,
-  ArrayExpression: (value) => {
+  ArrayExpression: value => {
     const extractedVal = TYPES.ArrayExpression.call(undefined, value);
-    return extractedVal.filter((val) => val !== null);
+    return extractedVal.filter(val => val !== null);
   },
   BindExpression: noop,
   SpreadElement: noop,
@@ -160,13 +156,12 @@ const LITERAL_TYPES = {
 };
 
 /**
- * This function maps an AST value node
- * to its correct extractor function for its
- * given type.
+ * This function maps an AST value node to its correct extractor function for
+ * its given type.
  *
- * This will map correctly for *some* possible types that map to literals.
+ * This will map correctly for _some_ possible types that map to literals.
  *
- * @param - value - AST Value object with type `JSXExpressionContainer`
+ * @param value Value - AST Value object with type `JSXExpressionContainer`
  * @returns The extracted value.
  */
 export function extractLiteral(value) {
@@ -175,7 +170,6 @@ export function extractLiteral(value) {
   const { type } = expression;
 
   if (LITERAL_TYPES[type] === undefined) {
-    // eslint-disable-next-line no-console
     console.error(errorMessage(type));
     return null;
   }

@@ -3,33 +3,35 @@ function sortStarts(a, b) {
 }
 
 /**
- * Returns the string value of a template literal object.
- * Tries to build it as best as it can based on the passed
- * prop. For instance `This is a ${prop}` will return 'This is a {prop}'.
+ * Returns the string value of a template literal object. Tries to build it as
+ * best as it can based on the passed prop. For instance `This is a ${prop}`
+ * will return 'This is a {prop}'.
  *
- * If the template literal builds to undefined (`${undefined}`), then
- * this should return "undefined".
+ * If the template literal builds to undefined (`${undefined}`), then this
+ * should return "undefined".
+ *
+ * @param value
  */
 export default function extractValueFromTemplateLiteral(value) {
-  const {
-    quasis,
-    expressions,
-  } = value;
+  const { quasis, expressions } = value;
   const partitions = quasis.concat(expressions);
 
-  return partitions.sort(sortStarts).map(({ type, value: { raw } = {}, name }) => {
-    if (type === 'TemplateElement') {
-      return raw;
-    }
+  return partitions
+    .sort(sortStarts)
+    .map(({ type, value: { raw } = {}, name }) => {
+      if (type === 'TemplateElement') {
+        return raw;
+      }
 
-    if (type === 'Identifier') {
-      return name === 'undefined' ? name : `{${name}}`;
-    }
+      if (type === 'Identifier') {
+        return name === 'undefined' ? name : `{${name}}`;
+      }
 
-    if (type.indexOf('Expression') > -1) {
-      return `{${type}}`;
-    }
+      if (type.includes('Expression')) {
+        return `{${type}}`;
+      }
 
-    return '';
-  }).join('');
+      return '';
+    })
+    .join('');
 }

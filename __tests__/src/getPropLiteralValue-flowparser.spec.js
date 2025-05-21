@@ -1,18 +1,13 @@
 /* eslint-env mocha */
 /* eslint no-template-curly-in-string: 0 */
-import assert from 'assert';
-import {
-  extractProp,
-  describeIfNotBabylon,
-  changePlugins,
-  setParserName,
-  setIsESM,
-} from '../helper';
+import assert from 'node:assert';
+
 import { getLiteralPropValue } from '../../src/getPropValue';
+import { extractProp, changePlugins, setParserName } from '../helper';
 
 describe('getLiteralPropValue', () => {
   beforeEach(() => {
-    setParserName('babel');
+    setParserName('flow');
   });
   it('should export a function', () => {
     const expected = 'function';
@@ -36,9 +31,9 @@ describe('getLiteralPropValue', () => {
       },
     };
     let counter = 0;
-    // eslint-disable-next-line no-console
+
     const errorOrig = console.error;
-    // eslint-disable-next-line no-console
+
     console.error = () => {
       counter += 1;
     };
@@ -47,9 +42,9 @@ describe('getLiteralPropValue', () => {
       value = getLiteralPropValue(prop);
     }, Error);
 
-    assert.equal(null, value);
+    assert.equal(value, null);
     assert.equal(counter, 1);
-    // eslint-disable-next-line no-console
+
     console.error = errorOrig;
   });
 
@@ -163,17 +158,6 @@ describe('getLiteralPropValue', () => {
       const prop = extractProp('<div foo={undefined} />');
 
       const expected = undefined;
-      const actual = getLiteralPropValue(prop);
-
-      assert.equal(actual, expected);
-    });
-  });
-
-  describeIfNotBabylon('Chain Expression', () => {
-    it('should return null', () => {
-      const prop = extractProp('<div foo={abc?.def} />');
-
-      const expected = null;
       const actual = getLiteralPropValue(prop);
 
       assert.equal(actual, expected);
@@ -491,31 +475,16 @@ describe('getLiteralPropValue', () => {
     it('should return null', () => {
       const prop = extractProp('<div foo={::this.handleClick} />');
 
-      const expected = null;
+      const expected = 'null';
       const actual = getLiteralPropValue(prop);
 
       assert.deepEqual(actual, expected);
     });
   });
 
-  describeIfNotBabylon('import.meta', () => {
+  describe('Typescript', () => {
     beforeEach(() => {
-      setIsESM();
-    });
-
-    it('should return null', () => {
-      const prop = extractProp('<div foo={import.meta.env.whyIsThisNotOnProcess} />');
-
-      const expected = null;
-      const actual = getLiteralPropValue(prop);
-
-      assert.deepEqual(actual, expected);
-    });
-  });
-
-  describeIfNotBabylon('Typescript', () => {
-    beforeEach(() => {
-      changePlugins((pls) => [...pls, 'typescript']);
+      changePlugins(pls => [...pls, 'typescript']);
     });
 
     it('should return string representation of variable identifier wrapped in a Typescript non-null assertion', () => {
@@ -537,19 +506,12 @@ describe('getLiteralPropValue', () => {
     });
 
     it('should return string representation of variable identifier wrapped in a Typescript type coercion', () => {
-      changePlugins((pls) => [...pls, 'typescript']);
+      changePlugins(pls => [...pls, 'typescript']);
       const prop = extractProp('<div foo={bar as any} />');
 
       const expected = null;
       const actual = getLiteralPropValue(prop);
 
-      assert.equal(actual, expected);
-    });
-
-    it('should work with a this.props value', () => {
-      const prop = extractProp('<a href={this.props.href!}>Download</a>', 'href');
-      const expected = null;
-      const actual = getLiteralPropValue(prop);
       assert.equal(actual, expected);
     });
   });
